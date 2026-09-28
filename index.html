@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart To-Do List</title>
+</head>
+<body>
+
+    <h2>Smart To-Do List</h2>
+
+    <!-- Basic Form and Input Elements -->
+    <form onsubmit="event.preventDefault(); addTask();">
+        <label>Enter Task:</label>
+        <input type="text" id="taskTitle" placeholder="e.g. Submit assignment">
+        <button type="submit">Add Task</button>
+    </form>
+
+    <h2>Tasks List</h2>
+    
+    <!-- Unordered List for displaying tasks -->
+    <ul id="taskList"></ul>
+
+    <!-- Basic JavaScript to connect FastAPI Backend -->
+    <script>
+        async function fetchTasks() {
+            let response = await fetch('http://127.0.0.1:8000/tasks/');
+            let data = await response.json();
+            
+            let list = document.getElementById('taskList');
+            list.innerHTML = '';
+
+            data.tasks.forEach(t => {
+                let item = document.createElement('li');
+                item.innerHTML = t.title + " - <b>Priority: " + t.priority + "</b>";
+                list.appendChild(item);
+            });
+        }
+
+        async function addTask() {
+            let input = document.getElementById('taskTitle');
+            if (input.value == '') return;
+
+            await fetch('http://127.0.0.1:8000/tasks/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: input.value })
+            });
+
+            input.value = '';
+            fetchTasks();
+        }
+
+        fetchTasks();
+    </script>
+
+</body>
+</html>
